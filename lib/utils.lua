@@ -7,7 +7,7 @@ function _M.file_exists(file)
     if f then f:close() end
     return f ~= nil
 end
-  
+
 function _M.lines_from(file)
     if not _M.file_exists(file) then return {} end
     local lines = {}
@@ -33,7 +33,7 @@ function _M.table_keys(t)
       n = n + 1
       keyset[n] = k
     end
-    
+
     table.sort(keyset)
     return keyset
 end

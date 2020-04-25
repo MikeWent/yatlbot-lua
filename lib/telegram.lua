@@ -28,16 +28,16 @@ function _M:request(method, params)
     local url = "https://api.telegram.org/bot"..self.token.."/"..method
     local response_body = {}
     local res, code = https.request {
-		method = "POST",
+        method = "POST",
         source = ltn12.source.string(req_params),
-		url = url,
-		headers = {
-	  		["Content-Type"] = "application/x-www-form-urlencoded";
-  	  		["Content-Length"] = #req_params;
-	  		["Accept"] = "*/*";
-  	  		["Connection"] = "Keep-Alive";
-		},
- 		sink = ltn12.sink.table(response_body)
+        url = url,
+        headers = {
+            ["Content-Type"] = "application/x-www-form-urlencoded";
+            ["Content-Length"] = #req_params;
+            ["Accept"] = "*/*";
+            ["Connection"] = "Keep-Alive";
+        },
+        sink = ltn12.sink.table(response_body)
     }
 
     local response = json.decode(table.concat(response_body))
