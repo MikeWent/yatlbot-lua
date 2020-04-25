@@ -51,6 +51,24 @@ end
 
 function _M:add_handler(event_type, filter, callback_function)
     -- https://core.telegram.org/bots/api#update
+
+    --[[
+
+        handlers = {
+            "message" = {
+                {filter1, handler1},
+                {filter2, handler2},
+                {filter3, handler3}
+            },
+            "callback_query" = {
+                {filter10, handler10}
+                {filter11, handler11}
+            }
+        }
+
+        corresponding 'handler' executes ONLY if its 'filter' with 'event' argument returns true
+
+    --]]
     if not self.handlers[event_type] then
         self.handlers[event_type] = {}
     end
