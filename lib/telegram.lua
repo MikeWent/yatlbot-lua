@@ -60,7 +60,8 @@ end
 function _M:handle_event(event)
     local event_id = event.update_id
     event.update_id = nil
-    local event_type = utils.table_keys(event)[1]
+    local event_type = next(event)
+    -- local event_type = utils.table_keys(event)[1]
     local this_type_handlers = self.handlers[event_type]
     if #this_type_handlers > 0 then
         -- process each handler of this event type
