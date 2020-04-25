@@ -24,4 +24,18 @@ function _M.inspect_json(json)
     print(inspect(json, {process = remove_all_metatables}))
 end
 
+function _M.table_keys(t)
+    -- https://stackoverflow.com/questions/12674345/lua-retrieve-list-of-keys-in-a-table#12674376
+    local keyset = {}
+    local n = 0
+
+    for k, _ in pairs(t) do
+      n = n + 1
+      keyset[n] = k
+    end
+    
+    table.sort(keyset)
+    return keyset
+end
+
 return _M
