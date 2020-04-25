@@ -49,7 +49,7 @@ function _M:request(method, params)
     end
 end
 
-function _M:add_handler(event_type, filter, callback_function)
+function _M:add_handler(event_type, filter_function, handler_function)
     -- https://core.telegram.org/bots/api#update
 
     --[[
@@ -72,7 +72,7 @@ function _M:add_handler(event_type, filter, callback_function)
     if not self.handlers[event_type] then
         self.handlers[event_type] = {}
     end
-    table.insert(self.handlers[event_type], {filter, callback_function})
+    table.insert(self.handlers[event_type], {filter_function, handler_function})
 end
 
 function _M:handle_event(event)
