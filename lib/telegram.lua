@@ -1,9 +1,7 @@
-local https = require "ssl.https"
-local urlencode = require "urlencode"
 local json = require "rapidjson"
-local ltn12 = require "ltn12"
 
-local utils = require "lib.utils"
+local http = require "lib.http"
+-- local utils = require "lib.utils"
 
 local _M = {}
 _M.__index = _M
@@ -18,29 +16,9 @@ end
 
 function _M:request(method, params)
     -- https://core.telegram.org/bots/api#available-methods
-    local req_params = ""
-    if params then
-        for i, v in pairs(params) do
-            req_params = req_params .. i .. "=" .. urlencode.encode_url(v) .. "&"
-        end
-    end
-
-    local url = "https://api.telegram.org/bot"..self.token.."/"..method
-    local response_body = {}
-    local res, code = https.request {
-        method = "POST",
-        source = ltn12.source.string(req_params),
-        url = url,
-        headers = {
-            ["Content-Type"] = "application/x-www-form-urlencoded";
-            ["Content-Length"] = #req_params;
-            ["Accept"] = "*/*";
-            ["Connection"] = "Keep-Alive";
-        },
-        sink = ltn12.sink.table(response_body)
-    }
-
-    local response = json.decode(table.concat(response_body))
+    local response = json.decode(
+        http.post("https://api.telegram.org/bot"..self.token.."/"..method, params)
+    )
 
     if response["ok"] then
         return response["result"]
