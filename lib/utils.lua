@@ -33,9 +33,31 @@ function _M.table_keys(t)
       n = n + 1
       keyset[n] = k
     end
-
-    table.sort(keyset)
+    -- by default all keys are unordered, so should we?
+    -- table.sort(keyset)
     return keyset
+end
+
+function _M.mention(user)
+    return '<a href="tg://user?id='..user.id..'">'.._M.html_escape(user.first_name)..'</a>'
+end
+
+function _M.html_escape(text)
+    -- https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#xss-prevention-rules
+    -- https://dev.w3.org/html5/html-author/charref
+    local rules = {
+        {"<", "&lt;"},
+        {">", "&gt;"},
+        {'"', "&quot;"},
+        {"'", "&#39;"},
+        {"/", "&#x0002F;"},
+        {"\\", "&#x0005C;"}
+    }
+    -- replace known chars
+    for n = 1,#rules do
+        text = text:gsub(rules[n][1], rules[n][2])
+    end
+    return text
 end
 
 return _M
