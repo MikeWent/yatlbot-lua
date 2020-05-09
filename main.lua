@@ -18,7 +18,7 @@ Bot:add_handler(
     function(event)
         return event.message.text == "/start"
     end,
-    function (event)
+    function(event)
         Bot:request("sendMessage", {chat_id = event.message.chat.id, text = "Hello world"})
     end
 )
@@ -28,7 +28,7 @@ Bot:add_handler(
     function(event)
         return event.message.text == "/ping"
     end,
-    function (event)
+    function(event)
         Bot:request("sendMessage", {chat_id = event.message.chat.id, text = "Pong, dear "..event.message.from.first_name})
     end
 )
