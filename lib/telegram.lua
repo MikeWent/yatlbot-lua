@@ -1,6 +1,6 @@
-local json = require "rapidjson"
-
-local http = require "lib.http"
+local cqueues = require 'cqueues'
+local json = require "cjson"
+local http = require 'lib.http'
 -- local utils = require "lib.utils"
 
 local _M = {}
@@ -16,15 +16,15 @@ end
 
 function _M:request(method, params)
     -- https://core.telegram.org/bots/api#available-methods
-    local response = json.decode(
-        http.post("https://api.telegram.org/bot"..self.token.."/"..method, params)
-    )
-
-    if response["ok"] then
-        return response["result"]
-    else
-        error("Telegram API error #"..response["error_code"]..": "..response["description"])
-    end
+    local req = http.request("https://api.telegram.org/bot"..self.token.."/"..method)
+    req.headers:upsert(":method", 'POST')
+    req.headers:upsert("content-type", "application/x-www-form-urlencoded") -- headers
+    req:set_body(http.util.dict_to_query(params or {}))
+    local h,stream = req:go()
+    local r,err    = stream:get_body_as_string()
+    local response = json.decode(r)
+    assert(response.ok, 'Telegram API error #'..(response.error_code or '-1')..': '..(response.description or ''))
+    return response.result
 end
 
 function _M:add_handler(event_type, filter_function, handler_function)
@@ -71,17 +71,23 @@ function _M:handle_event(event)
         end
     end
 
-    self.last_processed_update = event_id
+--    self.last_processed_update = event_id
 end
 
 function _M:start_polling()
-    while true do
-        local recent_updates = self:request("getUpdates", {timeout = 30, offset = self.last_processed_update + 1})
-        -- utils.inspect_json(recent_updates)
-        for n = 1, #recent_updates do
-            self:handle_event(recent_updates[n])
+    local dispatcher = cqueues.new()
+    dispatcher:wrap(function()
+        while true do
+            local recent_updates = self:request("getUpdates", {timeout = 30, offset = self.last_processed_update + 1})
+            self.last_processed_update = (#recent_updates>0) and recent_updates[#recent_updates].update_id or self.last_processed_update
+            -- utils.inspect_json(recent_updates)
+            for n = 1, #recent_updates do
+                dispatcher:wrap(function() self:handle_event(recent_updates[n]) end)
+            end
+            cqueues.sleep(0.1)
         end
-    end
+    end)
+    dispatcher:loop()
 end
 
 return _M
