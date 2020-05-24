@@ -1,8 +1,8 @@
 #!/bin/lua
 
+local cqueues = require 'cqueues'
 local tg = require 'lib.telegram'
 local utils = require 'lib.utils'
-
 local token = utils.lines_from("token.txt")[1]
 
 if token == nil then
@@ -30,6 +30,18 @@ Bot:add_handler(
     end,
     function(event)
         Bot:request("sendMessage", {chat_id = event.message.chat.id, text = "Pong, dear "..event.message.from.first_name})
+    end
+)
+
+Bot:add_handler(
+    "message",
+    function(event)
+        return event.message.text == "/sleep"
+    end,
+    function(event)
+        Bot:request("sendMessage", {chat_id = event.message.chat.id, text = "Sleeping 3 seconds..."})
+        cqueues.sleep(3)
+        Bot:request("sendMessage", {chat_id = event.message.chat.id, text = "Awake!"})        
     end
 )
 
